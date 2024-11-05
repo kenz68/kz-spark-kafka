@@ -1,3 +1,5 @@
 /.venv/
 /.idea/
 constant/__pycache__/
+*.csv
+/dataset/
