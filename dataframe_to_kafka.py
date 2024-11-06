@@ -127,8 +127,8 @@ if __name__ == "__main__":
 
 
     ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--input", required=False, type=str, default="input/iris.csv",
-                    help="Source data path. Default: ./input/iris.csv")
+    ap.add_argument("-i", "--input", required=False, type=str, default="dataset/sensors.csv",
+                    help="Source data path. Default: dataset/sensors.csv")
     ap.add_argument("-s", "--sep", required=False, type=str, default=",",
                     help="Source data file delimiter. Default: ,")
     ap.add_argument("-e", "--source_file_extension", required=False, type=str, default="csv",
@@ -137,8 +137,8 @@ if __name__ == "__main__":
                     help="Kafka value separator. What should be the sep in Kafka. Default: ,")
     ap.add_argument("-rst", "--row_sleep_time", required=False, type=float, default=0.5,
                     help="Sleep time in seconds per row. Default: 0.5")
-    ap.add_argument("-t", "--topic", required=False, type=str, default="test1",
-                    help="Kafka topic. Which topic to produce. Default: test1")
+    ap.add_argument("-t", "--topic", required=False, type=str, default="office_input",
+                    help="Kafka topic. Which topic to produce. Default: office_input")
     ap.add_argument("-b", "--bootstrap_servers", required=False, nargs='+', default=["localhost:9092"],
                     help="Kafka bootstrap servers and port in a python list. Default: [localhost:9092]")
     ap.add_argument("-r", "--repeat", required=False, type=int, default=1,

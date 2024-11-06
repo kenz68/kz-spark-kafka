@@ -67,7 +67,7 @@ def create_spark_session():
         spark = (SparkSession.builder
                  .appName("Streaming Kafka-Spark")
                  .config("spark.jars.packages",
-                         "org.elasticsearch:elasticsearch-spark-30_2.12:8.8.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.0")
+                         "org.elasticsearch:elasticsearch-spark-30_2.13:8.11.1,org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.0")
                  .config("spark.driver.memory", "2048m")
                  .config("spark.sql.shuffle.partitions", 4)
                  .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
@@ -90,13 +90,12 @@ def create_initial_dataframe(spark_session):
             .readStream \
             .format("kafka") \
             .option("kafka.bootstrap.servers", "localhost:9092") \
-            .option("subscribe", "office_input") \
+            .option("subscribe", "products") \
             .load()
         logging.info("Initial dataframe created successfully")
+        return df
     except Exception as e:
         logging.warning(f"Initial dataframe couldn't be created due to exception: {e}")
-
-    return df
 
 
 def create_final_dataframe(df, spark_session):
@@ -187,8 +186,8 @@ def start_streaming(df, es):
 
 if __name__ == '__main__':
     spark = create_spark_session()
-    df = create_initial_dataframe(spark)
-    df_final = create_final_dataframe(df, spark)
+    df_init = create_initial_dataframe(spark)
+    df_final = create_final_dataframe(df_init, spark)
     es = create_elasticsearch_connection()
     check_if_index_exists(es)
     start_streaming(df_final, es)
