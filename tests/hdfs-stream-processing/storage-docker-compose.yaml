@@ -1,0 +1,76 @@
+version: '3.8'
+services:
+  minio:
+    container_name: minio
+    image: "minio/minio"
+    volumes:
+      - minio:/data
+    ports:
+      - "9008:9008"
+      - "9009:9009"
+    networks:
+      - my_network
+    environment:
+      MINIO_ACCESS_KEY: "minio_access_key"
+      MINIO_SECRET_KEY: "minio_secret_key"
+    command: server /data --address ":9008" --console-address ":9009"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "localhost:9008/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  elasticsearch:
+    build:
+      context: elasticsearch
+      args:
+        ELASTIC_VERSION: 8.14.3
+    volumes:
+      - ./elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - elasticsearch:/usr/share/elasticsearch/data:Z
+    ports:
+      - 9200:9200
+    environment:
+      - node.name=elasticsearch
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - ELASTIC_PASSWORD=123456
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - elk
+    restart: unless-stopped
+
+  kibana:
+    build:
+      context: kibana
+      args:
+        ELASTIC_VERSION: 8.14.3
+    volumes:
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+    ports:
+      - 5601:5601
+    environment:
+      KIBANA_SYSTEM_PASSWORD: 123456
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+
+volumes:
+  minio:
+  elasticsearch:
+    driver: local
+
+networks:
+  my_network:
+  elk:
+    driver: bridge
